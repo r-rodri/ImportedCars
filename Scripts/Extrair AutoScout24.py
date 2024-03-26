@@ -12,13 +12,13 @@ import time
 import random
 import datetime
 import os
-import logging
+# import logging
 
-logging.basicConfig(
-    filename='TesteLog.log',
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.Info,
-)
+# logging.basicConfig(
+#     filename='TesteLog.log',
+#     format='%(asctime)s - %(levelname)s - %(message)s',
+#     level=logging.Info,
+# )
 
 # Função para colocar em branco alguma variavel (ex.: marca, modelo, versao) nao encontrada no html. 
 # E assim evitar a paragem abrupta do scrip. 
@@ -31,7 +31,7 @@ def good_soup(soup, divisor, classe= None):
 
 car_listings = []
 pagina = 1
-ultimapagina = 8
+ultimapagina = 3
 PriceFrom = [5000,15001,30001]
 PriceTo = [15000,30000,45000]
 
@@ -41,7 +41,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
     while pagina <= int(ultimapagina):
        
         # Usar para vendedores colectivos = empresa
-        url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2010&kmto=150000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1size64tibf&sort=standard&source=listpage_pagination&ustate=N%2CU'
+        url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2014&kmto=150000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1size64tibf&sort=standard&source=listpage_pagination&ustate=N%2CU'
         
         # Usar para vendedores privados
         # url = 'https://www.autoscout24.com/lst?atype=C&custtype=P&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2010&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=zz6yqqop1w&sort=standard&source=listpage_pagination&ustate=N%2CU'
@@ -141,11 +141,12 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     weight_element = technical_data_item.find('dt', string='Empty weight')
                     if weight_element:
                         weight = weight_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-        
-            other_fuel = ''
+            
             fuel = ''
+            other_fuel = ''
             co2 = ''
             emission = ''
+            electric_range = ''
             
             consumption_data = soup.find('h2', class_="DetailsSectionTitle_text__KAuxN", string='Energy Consumption')
             if consumption_data:
@@ -156,19 +157,30 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     if other_fuel_element:
                         other_fuel = other_fuel_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
                     
-                    fuel_item = consumption_data_item.find('dl', class_ = 'DataGrid_defaultDlStyle__xlLi_')                                             
-                    if fuel_item:
-                         fuel_element = fuel_item.find('span', class_='DataGrid_footnote_wrapper__YGTKS')#, string='Fuel consumption')
-                         if fuel_element:
-                             semi_fuel = fuel_item.find_all('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01")#.text.strip()
-                             fuel = semi_fuel[1].text.strip()
-                             
-                    co2_item = consumption_data_item.find_all('dt', class_ = 'DataGrid_defaultDtStyle__soJ6R')#, string = 'CO₂-emissions (WLTP)')
-                    if len(co2_item)>=3:
-                        co2_element = co2_item[2].find('span', class_ = 'DataGrid_footnote_wrapper__YGTKS')#, string = 'CO₂-emissions (WLTP)')
-                        if co2_element:
-                            co2 = co2_item[2].find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-                            
+                    # fuel_item = consumption_data_item.find('dl', class_ = 'DataGrid_defaultDlStyle__xlLi_')                                             
+                    # if fuel_item:
+                    #      fuel_element = fuel_item.find('span', class_='DataGrid_footnote_wrapper__YGTKS')#, string='Fuel consumption')
+                    #      if fuel_element:
+                    #          semi_fuel = fuel_item.find_all('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01")#.text.strip()
+                    #          fuel = semi_fuel[1].text.strip()
+                    fuel_element = consumption_data_item.find('dt', string='Power consumption (WLTP)')
+                    if fuel_element:
+                        fuel = fuel_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+                 
+                    # co2_item = consumption_data_item.find_all('dt', class_ = 'DataGrid_defaultDtStyle__soJ6R')#, string = 'CO₂-emissions (WLTP)')
+                    # if len(co2_item)>=3:
+                    #     co2_element = co2_item[2].find('span', class_ = 'DataGrid_footnote_wrapper__YGTKS')#, string = 'CO₂-emissions (WLTP)')
+                    #     if co2_element:
+                    #         co2 = co2_item[2].find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+                    
+                    co2_element = consumption_data_item.find('dt', string='CO₂-emissions (WLTP)')
+                    if co2_element:
+                        co2 = co2_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+                    
+                    electric_range_element = consumption_data_item.find('dt', string='Electric Range (WLTP)')
+                    if electric_range_element:
+                        electric_range = electric_range_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+            
                     emission_element = consumption_data_item.find('dt', string='Emission class')
                     if emission_element:
                         emission = emission_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
@@ -193,17 +205,18 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                                  'Fuel Consumption': fuel,
                                  'CO2 Emissions': co2,
                                  'Emission Class': emission,
+                                 'Electric Range': electric_range,
                                  'Link': fullsite,
                                  'Data': current_date
                                 })
                                  
             # Delay
             time.sleep(random.randint(1,4)) 
-            logging.debug(f"Encontrados {count} carros.")
+            # logging.debug(f"Encontrados {count} carros.")
             print(f'Encontrados {count} carros.')
         else:
             print("Não foram encontrados mais carros!")
-            logging.debug("Não foram encontrados mais carros!")
+            # logging.debug("Não foram encontrados mais carros!")
         pagina += 1
 
 # Criar DF e limpeza das colunas
@@ -212,19 +225,31 @@ duplos = df.duplicated().sum()
 # df.drop_duplicates(subset='ID', inplace=True)
 df['Site'] = 'AutoScout24'
 df['Portugal'] = 'No'
+
 print('Registos duplicados AutoScout:',duplos)
-logging.debug(f"Registos duplicados AutoScout:{duplos}")
+# logging.debug(f"Registos duplicados AutoScout:{duplos}")
+
+
+
+# # Guardar Ficheiro CSV. 
+# # Obter data, nome ficheiro, caminho do ficheiro e guardar.
+# current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+# wd = os.getcwd()
+# wd = os.path.abspath(os.path.join(wd, os.pardir))
+# path = os.chdir(wd)
+# file_name = f"Completo_AutoScout24__{current_time}.csv"
+# path = os.path.join(wd,'Original Data','AutoScout24')
+# full_path = os.path.join(path, file_name)
+# # logging.debug(f"Path:{full_path}")
 
 # Guardar Ficheiro CSV. 
 # Obter data, nome ficheiro, caminho do ficheiro e guardar.
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+os.chdir(r'C:\Users\Rodrigo\Documents\GitHub\ImportedCars\Original Data\AutoScout24')
 wd = os.getcwd()
-wd = os.path.abspath(os.path.join(wd, os.pardir))
-path = os.chdir(wd)
 file_name = f"Completo_AutoScout24__{current_time}.csv"
-path = os.path.join(wd,'Original Data','AutoScout24')
-full_path = os.path.join(path, file_name)
-logging.debug(f"Path:{full_path}")
+full_path = os.path.join(wd, file_name)
 
 # Save the DataFrame to CSV with the updated file name
 df.to_csv(full_path, index=False)
+#df.to_csv(wd, index=False)

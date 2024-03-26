@@ -11,12 +11,15 @@ import glob
 import os
 
 # Juntar ficheiros dentro da mesma pasta
-#path = r'C:/Users/Rodrigo/Desktop/Pos Graduação - Data Science/ISLA - Santarem/10. Projecto/Dados AutoScout24'
+os.chdir(r'C:\Users\Rodrigo\Documents\GitHub\ImportedCars\Original Data\AutoScout24')
 wd = os.getcwd()
-wd = os.path.abspath(os.path.join(wd, os.pardir))
-path = os.chdir(wd)
-path = os.path.join(wd,'Original Data','AutoScout24')
-all_files = glob.glob(os.path.join(path , "*.csv"))
+all_files = glob.glob(os.path.join(wd , "*.csv"))
+
+# wd = os.getcwd()
+# wd = os.path.abspath(os.path.join(wd, os.pardir))
+# path = os.chdir(wd)
+# path = os.path.join(wd,'Original Data','AutoScout24')
+# all_files = glob.glob(os.path.join(path , "*.csv"))
 
 li = []
 for filename in all_files:
@@ -33,6 +36,21 @@ df = pd.concat(li, axis=0, ignore_index=True)
 df.drop_duplicates(subset=['ID'], inplace=True)
 df.dropna(subset=['First Registration'], inplace=True) # Redudancia para apagar eventuais erros de extracao de dados
 df.dropna(subset=['Site'], inplace=True) # Redudancia para apagar eventuais erros de extracao de dados
+
+# Colocar valores corretos nas colunas corretas (g/km e l/100 km) 
+df['Fuel Consumption'].fillna('', inplace=True)
+df['CO2 Emissions'].fillna('', inplace=True)
+df.loc[df['Fuel Consumption'].str.contains('Electricity'),'Fuel Consumption'] = ''
+
+mask = df['Fuel Consumption'].str.contains(r'\bg/km\b')
+df.loc[mask, 'CO2 Emissions'] = df.loc[mask, 'Fuel Consumption']
+df.loc[mask, 'Fuel Consumption'] = ''
+
+mask = df['CO2 Emissions'].str.contains(r'\bl/100 km\b')
+df.loc[mask, 'Fuel Consumption'] = df.loc[mask, 'CO2 Emissions']
+df.loc[mask, 'CO2 Emissions'] = ''
+
+
 
 # 
 df['Gearbox'] = df['Gearbox'].fillna('Automática')
@@ -115,10 +133,15 @@ df.info() # Dtype=object?
 df.describe()
 df.nunique()
 
-file = os.path.join('Prepared Data','AutoScout24_cleaned.csv')
-path = os.getcwd()
-full_path = os.path.join(path, file)
-df.to_csv(full_path, index = False)
+os.chdir('C:/Users/Rodrigo/Documents/GitHub/ImportedCars/Prepared Data')
+wd = os.getcwd()
+wd = os.path.join(wd,'AutoScout24_cleaned.csv')
+df.to_csv(wd, index = False)
+
+# file = os.path.join('Prepared Data','AutoScout24_cleaned.csv')
+# path = os.getcwd()
+# full_path = os.path.join(path, file)
+# df.to_csv(full_path, index = False)
 
 # x = df.iloc[3424].to_frame().T
 # x.columns

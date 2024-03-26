@@ -34,7 +34,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
             car_info_list = []
             
             count += 1 
-            if count > 3:
+            if count > 3: # Use just for quick tests
                 break
 
             site = banners.find('a')['href']

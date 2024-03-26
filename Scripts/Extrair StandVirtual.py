@@ -17,69 +17,78 @@ import os
 # Verificar variavel 'texto', a classe costuma alterar
 combined_df = pd.DataFrame()
 pagina = 1
-ultimapagina = 5
+ultimapagina = 4
 PriceFrom = [5000,15001,30001]
 PriceTo = [15000,30000,45000]
 
 for Price_From, Price_To in zip(PriceFrom, PriceTo):
     pagina = 1
     while pagina <= int(ultimapagina):
-        url = 'https://www.standvirtual.com/carros/desde-2010?search%5Bfilter_float_price%3Afrom%5D='+str(Price_From)+'&search%5Bfilter_float_price%3Ato%5D='+str(Price_To)+'&page='+str(pagina)
+        url = 'https://www.standvirtual.com/carros/desde-2014?search%5Bfilter_float_price%3Afrom%5D='+str(Price_From)+'&search%5Bfilter_float_price%3Ato%5D='+str(Price_To)+'&page='+str(pagina)
         # url = "https://www.standvirtual.com/carros?page="+str(pagina)
         print(f'-- Página {pagina} -- De {Price_From} € a {Price_To} € -- SV --')
         response = requests.get(url)
         soup = BeautifulSoup(response.content,"html.parser")
-        texto = soup.find_all("h1", class_="ev7e6t89 ooa-1xvnx1e er34gjf0") 
+        texto = soup.find_all("article", class_="ooa-yca59n ekwd5px0") 
         count = 0
         for banners in texto:
+            count += 1
+            
             site = banners.find('a')['href']
-            count += 1 
             response = requests.get(site)
-        
-            # Create a BeautifulSoup object from the HTML content
             soup = BeautifulSoup(response.content, "html.parser")
             
-            # Find the "detalhes" section on the webpage
-            detalhes_section = soup.find("h3", class_="e1iqsx45 ooa-vp6t6g")
-            # detalhes_section = soup.find("h4", class_="offer-parameters__title")
-            
-            # Check if the "detalhes" section exists
-            if detalhes_section:
-                # Find the parent div of the "detalhes" section
-                detalhes_div = detalhes_section.find_next("div", class_="offer-params")
-            
-                # Create a dictionary to store the extracted data
-                detalhes_data = {}
-            
-                # Iterate over each "detalhes" item and extract the information
-                for item in detalhes_div.find_all("li", class_="offer-params__item"):
-                    key_element = item.find("span", class_="offer-params__label")
-                    value_element = item.find("div", class_="offer-params__value")
-            
-                    if key_element and value_element:
-                        key = key_element.text.strip()
-                        value = value_element.text.strip()
-                        detalhes_data[key] = value
+            detalhes_section = soup.find("div", class_="ooa-w4tajz e18eslyg0")
                         
-                 # Extract the "ad_price" separately
-                ad_price_element = soup.find("span", class_="offer-price__number")
+            # Chech for DETAILS section
+            if detalhes_section:
+                # detalhes_data = {}
+                # detalhes_div = detalhes_section.find_next("div", class_="ooa-2m4gr9 e18eslyg2")
+                # if detalhes_div:
+                # # DETAILS
+                #     for item in detalhes_div.find_all("div", class_="ooa-162vy3d e18eslyg3"):
+                #         key_element = item.find("p", class_="e18eslyg4 ooa-12b2ph5")
+                #         value_element = item.find("p", class_="e16lfxpc0 ooa-1pe3502 er34gjf0")
+                
+                #         if key_element and value_element:
+                #             key = key_element.text.strip()
+                #             value = value_element.text.strip()
+                #             detalhes_data[key] = value
+                            
+                            ###########
+                details_divs = soup.find_all('div', class_='ooa-162vy3d e18eslyg3')
+
+                detalhes_data = {}
+                
+                for div in details_divs:
+                    title = div.find('p', class_='e18eslyg4 ooa-12b2ph5').text.strip()
+                    
+                    # Check if the value is in an <a> tag or a <p> tag
+                    value_element = div.find('a', class_='e16lfxpc1 ooa-1ftbcn2') or div.find('p', class_='e16lfxpc0 ooa-1pe3502 er34gjf0')
+                    value = value_element.text.strip() if value_element else None
+                
+                    detalhes_data[title] = value
+                            ######################
+                 
+                 # PRICE
+                ad_price_element = soup.find("h3", class_="offer-price__number eqdspoq4 ooa-o7wv9s er34gjf0")
                 if ad_price_element:
                     ad_price = ad_price_element.text.strip()
                     detalhes_data["Preco"] = ad_price
                     
-                # Extract the "ad_id"
-                ad_id_element = soup.find("span", id="ad_id")
+                # ID
+                ad_id_element = soup.find('div', class_='ooa-1neiy54 edazosu6').find('p', class_='edazosu4 ooa-1afacld er34gjf0')
                 if ad_id_element:
-                    ad_id = ad_id_element.text.strip()
+                    ad_id = ad_id_element.text.strip().split(": ")[1]
                     detalhes_data["ID Anuncio"] = ad_id
                     
-                 # Extract the "date"
-                data_anuncio_element = soup.find("span", class_="offer-meta__value")
+                 # Banner DATE
+                data_anuncio_element = soup.find('div', class_='ooa-1oivzan edazosu6').find('p', class_='edazosu4 ooa-1afacld er34gjf0')
                 if data_anuncio_element:
-                    data_anuncio = data_anuncio_element.text.strip().split(", ")[1]
+                    data_anuncio = data_anuncio_element.text.strip().split("às")[0]
                     detalhes_data["Data Anuncio"] = data_anuncio
 
-                # Extract the "Link"
+                # LINK
                 detalhes_data["Link"] = site
 
                 # Create a DataFrame from the extracted data
@@ -112,13 +121,16 @@ print('Registos duplicados StandVirtual:',duplos)
 # Get the current time
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
 file_name = f"StandVirtualGeral_{current_time}.csv"
+os.chdir(r'C:\Users\Rodrigo\Documents\GitHub\ImportedCars\Original Data\StandVirtual')
+wd = os.getcwd()
+full_path = os.path.join(wd, file_name)
 
 # Construct the file name with the current time
-wd = os.getcwd()
-wd = os.path.abspath(os.path.join(wd, os.pardir))
-path = os.chdir(wd)
-path = os.path.join(wd,'Original Data','StandVirtual')
-full_path = os.path.join(path, file_name)
+# wd = os.getcwd()
+# wd = os.path.abspath(os.path.join(wd, os.pardir))
+# path = os.chdir(wd)
+# path = os.path.join(wd,'Original Data','StandVirtual')
+# full_path = os.path.join(path, file_name)
 
 # Save the DataFrame to CSV with the updated file name
 combined_df.to_csv(full_path, index=False)
