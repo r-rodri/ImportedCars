@@ -173,10 +173,10 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     #     if co2_element:
                     #         co2 = co2_item[2].find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
                     
-                    co2_element = consumption_data_item.find('dt', string='CO₂-emissions (WLTP)')
-                    if co2_element:
-                        co2 = co2_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-                    
+                    co2_emissions = soup.find(string='CO₂-emissions') or soup.find(string='CO₂-emissions (WLTP)') 
+                    if co2_emissions:   
+                       co2 = co2_emissions.find_next('dd').text.strip()
+                       
                     electric_range_element = consumption_data_item.find('dt', string='Electric Range (WLTP)')
                     if electric_range_element:
                         electric_range = electric_range_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
