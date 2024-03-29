@@ -42,20 +42,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                         
             # Chech for DETAILS section
             if detalhes_section:
-                # detalhes_data = {}
-                # detalhes_div = detalhes_section.find_next("div", class_="ooa-2m4gr9 e18eslyg2")
-                # if detalhes_div:
-                # # DETAILS
-                #     for item in detalhes_div.find_all("div", class_="ooa-162vy3d e18eslyg3"):
-                #         key_element = item.find("p", class_="e18eslyg4 ooa-12b2ph5")
-                #         value_element = item.find("p", class_="e16lfxpc0 ooa-1pe3502 er34gjf0")
-                
-                #         if key_element and value_element:
-                #             key = key_element.text.strip()
-                #             value = value_element.text.strip()
-                #             detalhes_data[key] = value
-                            
-                            ###########
+
                 details_divs = soup.find_all('div', class_='ooa-162vy3d e18eslyg3')
 
                 detalhes_data = {}
@@ -125,12 +112,4 @@ os.chdir(r'C:\Users\Rodrigo\Documents\GitHub\ImportedCars\Original Data\StandVir
 wd = os.getcwd()
 full_path = os.path.join(wd, file_name)
 
-# Construct the file name with the current time
-# wd = os.getcwd()
-# wd = os.path.abspath(os.path.join(wd, os.pardir))
-# path = os.chdir(wd)
-# path = os.path.join(wd,'Original Data','StandVirtual')
-# full_path = os.path.join(path, file_name)
-
-# Save the DataFrame to CSV with the updated file name
 combined_df.to_csv(full_path, index=False)

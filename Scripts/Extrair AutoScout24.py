@@ -12,13 +12,6 @@ import time
 import random
 import datetime
 import os
-# import logging
-
-# logging.basicConfig(
-#     filename='TesteLog.log',
-#     format='%(asctime)s - %(levelname)s - %(message)s',
-#     level=logging.Info,
-# )
 
 # Função para colocar em branco alguma variavel (ex.: marca, modelo, versao) nao encontrada no html. 
 # E assim evitar a paragem abrupta do scrip. 
@@ -31,7 +24,7 @@ def good_soup(soup, divisor, classe= None):
 
 car_listings = []
 pagina = 1
-ultimapagina = 3
+ultimapagina = 4
 PriceFrom = [5000,15001,30001]
 PriceTo = [15000,30000,45000]
 
@@ -40,17 +33,18 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
     pagina = 1
     while pagina <= int(ultimapagina):
        
-        # Usar para vendedores colectivos = empresa
+        # shop sellers
         # url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2014&kmto=150000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1size64tibf&sort=standard&source=listpage_pagination&ustate=N%2CU'
         
-        # Usar para vendedores privados
+        # private sellers
         # url = 'https://www.autoscout24.com/lst?atype=C&custtype=P&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2010&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=zz6yqqop1w&sort=standard&source=listpage_pagination&ustate=N%2CU'
        
         # BMW+VW+Ford
-        # url = 'https://www.autoscout24.com/lst/bmw?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&desc=0&fregfrom=2010&fregto=2022&kmto=150000&mmmv=29%7C%7C%7C%2C74%7C%7C%7C&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1giwjlvcsmx&sort=standard&source=listpage_pagination&ustate=N%2CU' 
+        url = 'https://www.autoscout24.com/lst/bmw?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&desc=0&fregfrom=2010&fregto=2022&kmto=150000&mmmv=29%7C%7C%7C%2C74%7C%7C%7C&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1giwjlvcsmx&sort=standard&source=listpage_pagination&ustate=N%2CU' 
        
-        # Electricos+Hibridos + >2016
-        url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2016&fuel=E%2C2%2C3&kmto=80000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=walm73yy7s&sort=standard&source=listpage_pagination&ustate=N%2CU'
+        # Electric + hybrids>2016
+        # url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2016&fuel=E%2C2%2C3&kmto=80000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=walm73yy7s&sort=standard&source=listpage_pagination&ustate=N%2CU'
+        
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         count = 0 
@@ -158,17 +152,6 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     if other_fuel_element:
                         other_fuel = other_fuel_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
                     
-                    # fuel_item = consumption_data_item.find('dl', class_ = 'DataGrid_defaultDlStyle__xlLi_')                                             
-                    # if fuel_item:
-                    #      fuel_element = fuel_item.find('span', class_='DataGrid_footnote_wrapper__YGTKS')#, string='Fuel consumption')
-                    #      if fuel_element:
-                    #          semi_fuel = fuel_item.find_all('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01")#.text.strip()
-                    #          fuel = semi_fuel[1].text.strip()
-                    
-                    # fuel_element = consumption_data_item.find('dt', string='Power consumption (WLTP)')
-                    # if fuel_element:
-                    #     fuel = fuel_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-                    
                     fuel_consumption = soup.find_all(string='Fuel consumption')
                     if fuel_consumption:
                         fuel = fuel_consumption[0].find_next('p').text.strip() 
@@ -177,20 +160,10 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     if energy_consumption_item:
                        energy_consumption = energy_consumption_item[0].find_next('dd').text.strip()     
                         
-                    # co2_item = consumption_data_item.find_all('dt', class_ = 'DataGrid_defaultDtStyle__soJ6R')#, string = 'CO₂-emissions (WLTP)')
-                    # if len(co2_item)>=3:
-                    #     co2_element = co2_item[2].find('span', class_ = 'DataGrid_footnote_wrapper__YGTKS')#, string = 'CO₂-emissions (WLTP)')
-                    #     if co2_element:
-                    #         co2 = co2_item[2].find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-                    
                     co2_emissions = soup.find(string='CO₂-emissions') or soup.find(string='CO₂-emissions (WLTP)') 
                     if co2_emissions:   
                        co2 = co2_emissions.find_next('dd').text.strip()
-                       
-                    # electric_range_element = consumption_data_item.find('dt', string='Electric Range (WLTP)')
-                    # if electric_range_element:
-                    #     electric_range = electric_range_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-            
+                  
                     range_item = soup.find_all(string='Electric Range (WLTP)') or soup.find_all(string='Electric Range')
                     if range_item:
                        electric_range = range_item[0].find_next('dd').text.strip() 
