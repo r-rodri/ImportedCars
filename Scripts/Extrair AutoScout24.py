@@ -41,7 +41,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
     while pagina <= int(ultimapagina):
        
         # Usar para vendedores colectivos = empresa
-        url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2014&kmto=150000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1size64tibf&sort=standard&source=listpage_pagination&ustate=N%2CU'
+        # url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2014&kmto=150000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1size64tibf&sort=standard&source=listpage_pagination&ustate=N%2CU'
         
         # Usar para vendedores privados
         # url = 'https://www.autoscout24.com/lst?atype=C&custtype=P&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2010&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=zz6yqqop1w&sort=standard&source=listpage_pagination&ustate=N%2CU'
@@ -50,7 +50,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
         # url = 'https://www.autoscout24.com/lst/bmw?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&desc=0&fregfrom=2010&fregto=2022&kmto=150000&mmmv=29%7C%7C%7C%2C74%7C%7C%7C&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=1giwjlvcsmx&sort=standard&source=listpage_pagination&ustate=N%2CU' 
        
         # Electricos+Hibridos + >2016
-        # url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2016&fuel=E%2C2%2C3&kmto=80000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=walm73yy7s&sort=standard&source=listpage_pagination&ustate=N%2CU'
+        url = 'https://www.autoscout24.com/lst?atype=C&cy=D%2CA%2CB%2CE%2CF%2CI%2CL%2CNL&damaged_listing=exclude&desc=0&fregfrom=2016&fuel=E%2C2%2C3&kmto=80000&page='+str(pagina)+'&powertype=kw&pricefrom='+str(Price_From)+'&priceto='+str(Price_To)+'&search_id=walm73yy7s&sort=standard&source=listpage_pagination&ustate=N%2CU'
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         count = 0 
@@ -147,6 +147,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
             co2 = ''
             emission = ''
             electric_range = ''
+            energy_consumption = ''
             
             consumption_data = soup.find('h2', class_="DetailsSectionTitle_text__KAuxN", string='Energy Consumption')
             if consumption_data:
@@ -163,10 +164,19 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     #      if fuel_element:
                     #          semi_fuel = fuel_item.find_all('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01")#.text.strip()
                     #          fuel = semi_fuel[1].text.strip()
-                    fuel_element = consumption_data_item.find('dt', string='Power consumption (WLTP)')
-                    if fuel_element:
-                        fuel = fuel_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
-                 
+                    
+                    # fuel_element = consumption_data_item.find('dt', string='Power consumption (WLTP)')
+                    # if fuel_element:
+                    #     fuel = fuel_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+                    
+                    fuel_consumption = soup.find_all(string='Fuel consumption')
+                    if fuel_consumption:
+                        fuel = fuel_consumption[0].find_next('p').text.strip() 
+                    
+                    energy_consumption_item = soup.find_all(string='Power consumption (WLTP)') or soup.find_all(string='Power consumption')
+                    if energy_consumption_item:
+                       energy_consumption = energy_consumption_item[0].find_next('dd').text.strip()     
+                        
                     # co2_item = consumption_data_item.find_all('dt', class_ = 'DataGrid_defaultDtStyle__soJ6R')#, string = 'CO₂-emissions (WLTP)')
                     # if len(co2_item)>=3:
                     #     co2_element = co2_item[2].find('span', class_ = 'DataGrid_footnote_wrapper__YGTKS')#, string = 'CO₂-emissions (WLTP)')
@@ -177,13 +187,18 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                     if co2_emissions:   
                        co2 = co2_emissions.find_next('dd').text.strip()
                        
-                    electric_range_element = consumption_data_item.find('dt', string='Electric Range (WLTP)')
-                    if electric_range_element:
-                        electric_range = electric_range_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+                    # electric_range_element = consumption_data_item.find('dt', string='Electric Range (WLTP)')
+                    # if electric_range_element:
+                    #     electric_range = electric_range_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+            
+                    range_item = soup.find_all(string='Electric Range (WLTP)') or soup.find_all(string='Electric Range')
+                    if range_item:
+                       electric_range = range_item[0].find_next('dd').text.strip() 
             
                     emission_element = consumption_data_item.find('dt', string='Emission class')
                     if emission_element:
                         emission = emission_element.find_next('dd', class_="DataGrid_defaultDdStyle__3IYpG DataGrid_fontBold__RqU01").text.strip()
+                    
                         
             car_listings.append({'ID': new_id,
                                 'Make': make,
@@ -206,17 +221,16 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
                                  'CO2 Emissions': co2,
                                  'Emission Class': emission,
                                  'Electric Range': electric_range,
+                                 'Electric Consumption': energy_consumption,
                                  'Link': fullsite,
                                  'Data': current_date
                                 })
                                  
             # Delay
             time.sleep(random.randint(1,4)) 
-            # logging.debug(f"Encontrados {count} carros.")
             print(f'Encontrados {count} carros.')
         else:
             print("Não foram encontrados mais carros!")
-            # logging.debug("Não foram encontrados mais carros!")
         pagina += 1
 
 # Criar DF e limpeza das colunas
@@ -227,20 +241,6 @@ df['Site'] = 'AutoScout24'
 df['Portugal'] = 'No'
 
 print('Registos duplicados AutoScout:',duplos)
-# logging.debug(f"Registos duplicados AutoScout:{duplos}")
-
-
-
-# # Guardar Ficheiro CSV. 
-# # Obter data, nome ficheiro, caminho do ficheiro e guardar.
-# current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-# wd = os.getcwd()
-# wd = os.path.abspath(os.path.join(wd, os.pardir))
-# path = os.chdir(wd)
-# file_name = f"Completo_AutoScout24__{current_time}.csv"
-# path = os.path.join(wd,'Original Data','AutoScout24')
-# full_path = os.path.join(path, file_name)
-# # logging.debug(f"Path:{full_path}")
 
 # Guardar Ficheiro CSV. 
 # Obter data, nome ficheiro, caminho do ficheiro e guardar.
@@ -252,4 +252,4 @@ full_path = os.path.join(wd, file_name)
 
 # Save the DataFrame to CSV with the updated file name
 df.to_csv(full_path, index=False)
-#df.to_csv(wd, index=False)
+
