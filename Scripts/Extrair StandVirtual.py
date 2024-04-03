@@ -29,7 +29,7 @@ for Price_From, Price_To in zip(PriceFrom, PriceTo):
         print(f'-- Página {pagina} -- De {Price_From} € a {Price_To} € -- SV --')
         response = requests.get(url)
         soup = BeautifulSoup(response.content,"html.parser")
-        texto = soup.find_all("article", class_="ooa-yca59n eszxync0") 
+        texto = soup.find_all("article", class_="ooa-yca59n emjt7sh0") 
         count = 0
         for banners in texto:
             count += 1
