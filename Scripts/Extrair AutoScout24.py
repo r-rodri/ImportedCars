@@ -24,7 +24,7 @@ def good_soup(soup, divisor, classe= None):
 
 car_listings = []
 pagina = 1
-ultimapagina = 4
+ultimapagina = 6
 PriceFrom = [5000,15001,30001]
 PriceTo = [15000,30000,45000]
 
