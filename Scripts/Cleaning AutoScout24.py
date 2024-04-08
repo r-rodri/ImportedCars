@@ -15,16 +15,10 @@ os.chdir(r'C:\Users\Rodrigo\Documents\GitHub\ImportedCars\Original Data\AutoScou
 wd = os.getcwd()
 all_files = glob.glob(os.path.join(wd , "*.csv"))
 
-# wd = os.getcwd()
-# wd = os.path.abspath(os.path.join(wd, os.pardir))
-# path = os.chdir(wd)
-# path = os.path.join(wd,'Original Data','AutoScout24')
-# all_files = glob.glob(os.path.join(path , "*.csv"))
-
 li = []
 for filename in all_files:
     try:
-        dfs = pd.read_csv(filename, index_col=None, header=0)
+        dfs = pd.read_csv(filename, index_col=None, header=0,sep = ',')
         li.append(dfs)
     except pd.errors.ParserError as e:
         print(f"Error parsing {filename}: {str(e)}")
@@ -50,7 +44,18 @@ mask = df['CO2 Emissions'].str.contains(r'\bl/100 km\b')
 df.loc[mask, 'Fuel Consumption'] = df.loc[mask, 'CO2 Emissions']
 df.loc[mask, 'CO2 Emissions'] = ''
 
+# Colocar valores de fuel consumption que tenham valores de autonomia a zero
+mask = df['Fuel Consumption'].str.match(r'^\d+\s*km$')
+df.loc[mask, 'Fuel Consumption'] = ''
 
+mask = df['Fuel Consumption'].str.match(r'^A')
+df.loc[mask, 'Fuel Consumption'] = ''
+
+mask = df['CO2 Emissions'].str.match(r'^A\+*$|^C|^B')
+df.loc[mask, 'CO2 Emissions'] = ''
+
+# mask.value_counts()
+# filtered_df = df[mask]
 
 # 
 df['Gearbox'] = df['Gearbox'].fillna('Automática')
@@ -117,7 +122,13 @@ df['CO2 Emissions [g/km]'] = pd.to_numeric(df['CO2 Emissions [g/km]'])
 df.drop(['Power','Weight', 'Engine Size', 'First Registration',  'Fuel Consumption', 'CO2 Emissions'], axis = 1, inplace = True)
 
 ######### Actualizar colunas nesta linha mas verificar ordem primeiro#############
-novas = 'ID Anuncio','Marca','Modelo','Versao','Preco','Quilometros','Tipo de Caixa','Combustivel','Anunciante','Numero de Mudancas','Numero de Cilindros','Outros tipos de Combustivel','Classe Emissoes','Site','Portugal','Data','Link','Mes de Registo','Ano','Potencia [kw]','Potencia [cv]','Cilindrada [cm3]','Peso [kg]','Consumo Combinado','Consumo Urbano','Consumo Extra Urbano','Emissoes CO2 [g/km]'
+novas = 'ID Anuncio','Marca','Modelo','Versao','Preco','Quilometros','Tipo de Caixa',\
+    'Combustivel','Anunciante','Numero de Mudancas','Numero de Cilindros',\
+        'Outros tipos de Combustivel','Classe Emissoes','Site','Portugal','Data','Link',\
+            'Autonomia Electrica [km]', 'Consumo [kWh/100km]','Mes de Registo','Ano',\
+                'Potencia [kw]','Potencia [cv]','Cilindrada [cm3]','Peso [kg]',\
+                    'Consumo Combinado','Consumo Urbano','Consumo Extra Urbano',\
+                        'Emissoes CO2 [g/km]'
 df.columns # Verificar ordem das colunas aqui
 df.columns = novas
 
@@ -129,7 +140,7 @@ df['Consumo Urbano'] = df['Consumo Urbano'].fillna(df['Consumo Urbano'].mean())
 df['Emissoes CO2 [g/km]'] = df['Emissoes CO2 [g/km]'].fillna(df['Emissoes CO2 [g/km]'].mean())
 df.loc[df['Combustivel'].isin(['Eléctrico']), 'Cilindrada [cm3]'] = df.loc[df['Combustivel'].isin(['Eléctrico']), 'Cilindrada [cm3]'].fillna(0)
 
-df.info() # Dtype=object?
+df.info()
 df.describe()
 df.nunique()
 
@@ -137,15 +148,3 @@ os.chdir('C:/Users/Rodrigo/Documents/GitHub/ImportedCars/Prepared Data')
 wd = os.getcwd()
 wd = os.path.join(wd,'AutoScout24_cleaned.csv')
 df.to_csv(wd, index = False)
-
-# file = os.path.join('Prepared Data','AutoScout24_cleaned.csv')
-# path = os.getcwd()
-# full_path = os.path.join(path, file)
-# df.to_csv(full_path, index = False)
-
-# x = df.iloc[3424].to_frame().T
-# x.columns
-# x.drop(['Fuel Consumption [l/100 km] (comb.)'], inplace = True, axis = 1)
-
-# x['Test'] = df['CO2 Emissions'].str.split('g/km').str[0].str.replace(',','.')
-# x.drop(['Test'], inplace = True, axis = 1)

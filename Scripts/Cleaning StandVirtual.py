@@ -44,8 +44,10 @@ novas = 'Anunciante','Marca','Modelo','Versao','Combustivel','Mes de Registo','A
 'Emissoes CO2 [g/km]','Duas Chaves','Consumo Extra Urbano','Bateria','Autonomia Maxima',\
 'IUC','Sub-modelo','Garantia de Fabrica ate','Inspecao valida ate','Filtro de Particulas',\
 'Ou Ate','Consumo Combinado','Autonomia Electrica [km]','Consumo [kWh/100km]',\
-'Capacidade da Bateria [kWh]','Classico','Site','Portugal','Valor Sem ISV','Link','Data'
+'Capacidade da Bateria [kWh]','Classico','Site','Portugal','Valor Sem ISV','Link','Data',\
+    'Tempo de carregamento', 'VIN'
 
+df.columns
 df.columns = novas
 
 # Limpeza das Colunas
@@ -126,7 +128,7 @@ df.nunique()
 df.drop(['Valor Fixo', 'IVA Discriminado','IVA Dedutivel','Possibilidade de Finaciamento',
          'Traccao','Lotacao','Numero de Registos','Livro de Revisoes Completo','Nao Fumador',
          'Tipo de Cor','Aceita Retoma', 'Duas Chaves','Classe do Veiculo','Garantia de Fabrica ate',
-         'Inspecao valida ate','Filtro de Particulas','Ou Ate'], axis = 1, inplace = True)
+         'Inspecao valida ate','Filtro de Particulas','Ou Ate','Tempo de carregamento', 'VIN'], axis = 1, inplace = True)
 
 file = os.path.join('Prepared Data','StandVirtual_cleaned.csv')
 path = os.getcwd()
