@@ -96,6 +96,8 @@ df.loc[mask, ['Autonomia Electrica [km]', 'Consumo [kWh/100km]', 'Capacidade da 
 
 # Para 'Híbrido (Diesel)' e 'Híbrido (Gasolina)'
 # Foi dados valores aleatorios dentro dos valores reais.
+mask = df[df['Combustivel'].isin(['Híbrido (Diesel)', 'Híbrido (Gasolina)'])]
+                              
 df.loc[(df['Combustivel'].isin(['Híbrido (Diesel)', 'Híbrido (Gasolina)'])) & (df['Ano'] < 2021), 'Autonomia Electrica [km]'] = \
     df.loc[(df['Combustivel'].isin(['Híbrido (Diesel)', 'Híbrido (Gasolina)'])) & (df['Ano'] < 2021), 'Autonomia Electrica [km]'].fillna(40)
 

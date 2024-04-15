@@ -119,6 +119,12 @@ df['Fuel Consumption [l/100 km] (country)'] = pd.to_numeric(df['Fuel Consumption
 df['CO2 Emissions [g/km]'] = df['CO2 Emissions'].str.split('g/km').str[0].str.replace(',','.')
 df['CO2 Emissions [g/km]'] = pd.to_numeric(df['CO2 Emissions [g/km]'])
 
+df['Electric Range'] = df['Electric Range'].str.split(' ').str[0]
+df['Electric Range'] = pd.to_numeric(df['Electric Range'])
+
+df['Electric Consumption'] = df['Electric Consumption'].str.split(' ').str[0]
+df['Electric Consumption'] = pd.to_numeric(df['Electric Consumption'])
+
 df.drop(['Power','Weight', 'Engine Size', 'First Registration',  'Fuel Consumption', 'CO2 Emissions'], axis = 1, inplace = True)
 
 ######### Actualizar colunas nesta linha mas verificar ordem primeiro#############
